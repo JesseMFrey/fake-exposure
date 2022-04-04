@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+import cv2 as cv
+import numpy as np
+
+# Author: Scott Manley / @djsnm
+# code to generate a fake long exposure image using a video 
+
+mImg = []
+idx = 0
+# fcount is the number of bright points to select and average, reduces noise, but makes trails less intense
+fcount = 30
+
+# open video file and read each image, assume 8bits/pixel
+cap = cv.VideoCapture("rocket_launch.mov")
+while(cap.isOpened()):
+    ret, frame = cap.read()
+    if(ret == True):
+        if(idx < fcount):
+            mImg.append(frame)
+        else:
+            mImg[idx%fcount] = np.maximum(frame,mImg[idx%fcount])
+    else:
+        break
+    idx += 1
+    # output progress
+    if(idx %100 == 0):
+        print(idx)
+
+
+print(len(mImg))
+idx =0
+# now create an average 
+avgImg = None
+for img in mImg:
+    #cv.imwrite(str(idx) + "_test.png",img)
+    if(idx ==0):
+        avgImg = img.astype("float32")
+    else:
+        avgImg = avgImg + img.astype("float32")
+    idx += 1
+    
+# average and scale this to 16 bit range
+avgImg = avgImg *256 / fcount
+avgImg = avgImg.astype(np.uint16)
+
+cv.imwrite("fake_long_exposure.png",avgImg)
