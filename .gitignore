@@ -2,3 +2,11 @@
 #ignore test files
 test.mp4
 fake_long_exposure.png
+
+#ignore python package dirs
+build/
+dist/
+*.egg-info/
+
+#ignore version file
+fakelongexposure/version.py
