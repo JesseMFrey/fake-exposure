@@ -57,7 +57,7 @@ def main():
 
     _, out_ext = os.path.splitext(args.output)
 
-    cv.imdecode(avgImg,cv.CV_LOAD_IMAGE_COLOR)
+    #cv.imdecode(avgImg,cv.CV_LOAD_IMAGE_COLOR)
     rv, encoded = cv.imencode(out_ext, avgImg)
 
     print(encoded)
