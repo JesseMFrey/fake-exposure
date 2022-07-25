@@ -18,15 +18,23 @@ def main():
                         'reduces noise, but makes trails less intense.')
     parser.add_argument('-o', '--output', type=str, default="fake_long_exposure.png",
                         help='Output filename.')
+    parser.add_argument('-p', '--progress', action='store_true', 
+                        help='Pring progress information.')
+
 
     args = parser.parse_args()
 
     mImg = []
     idx = 0
 
+    if args.progress:
+        print(f'Loading "{args.video}"')
     # open video file and read each image, assume 8bits/pixel
     cap = cv.VideoCapture(args.video)
     while(cap.isOpened()):
+        # output progress
+        if args.progress:
+            print(f'Processing frame {idx + 1}')
         ret, frame = cap.read()
         if(ret == True):
             if(idx < args.fcount):
@@ -36,19 +44,21 @@ def main():
         else:
             break
         idx += 1
-        # output progress
-        if(idx %100 == 0):
-            print(idx)
 
     # now create an average
     avgImg = None
-    for img in mImg:
+    nAvg = len(mImg)
+    for n, img in enumerate(mImg):
+        if args.progress:
+            print(f'Averaging {n + 1}/{nAvg}')
         #cv.imwrite(str(idx) + "_test.png",img)
         if avgImg is None:
             avgImg = img.astype("float64")
         else:
             avgImg = avgImg + img.astype("float64")
 
+    if args.progress:
+        print('Scaling values')
     # average and scale this to 16 bit range
     avgImg = avgImg *256 / args.fcount
     avgImg = avgImg.astype(np.uint16)
@@ -57,13 +67,15 @@ def main():
 
     _, out_ext = os.path.splitext(args.output)
 
+    if args.progress:
+        print('Encoding image')
     #cv.imdecode(avgImg,cv.CV_LOAD_IMAGE_COLOR)
     rv, encoded = cv.imencode(out_ext, avgImg)
 
-    print(encoded)
-
     #cv.imwrite(args.output,encoded,out_args)
 
+    if args.progress:
+        print(f'Writing "{args.output}"')
     with open(args.output,'wb') as f:
         f.write(encoded)
 
