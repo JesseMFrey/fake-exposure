@@ -20,30 +20,42 @@ def main():
                         help='Output filename.')
     parser.add_argument('-p', '--progress', action='store_true', 
                         help='Pring progress information.')
+    parser.add_argument('-s', '--start-frame', type=int, default=1, metavar='S',
+                        help='The first frame (1 is the first frame) to use in the picture.')
+    parser.add_argument('-e', '--end-frame', type=int, default=-1, metavar='E',
+                        help='The last frame (1 is the first frame) to use in the picture.')
 
 
     args = parser.parse_args()
 
     mImg = []
-    idx = 0
+    fnum = 0
 
     if args.progress:
         print(f'Loading "{args.video}"')
     # open video file and read each image, assume 8bits/pixel
     cap = cv.VideoCapture(args.video)
     while(cap.isOpened()):
+        fnum += 1
         # output progress
         if args.progress:
-            print(f'Processing frame {idx + 1}')
+            print(f'Processing frame {fnum}')
         ret, frame = cap.read()
-        if(ret == True):
-            if(idx < args.fcount):
-                mImg.append(frame)
+        #skip early frames
+        if fnum >= args.start_frame :
+            if(ret == True):
+                #calculate index in used portion
+                idx = fnum - args.start_frame
+                if(idx < args.fcount):
+                    mImg.append(frame)
+                else:
+                    mImg[idx%args.fcount] = np.maximum(frame,mImg[idx%args.fcount])
             else:
-                mImg[idx%args.fcount] = np.maximum(frame,mImg[idx%args.fcount])
-        else:
+                break
+
+        #exit loop once the end frame has been reached
+        if args.start_frame != -1 and fnum >= args.end_frame :
             break
-        idx += 1
 
     # now create an average
     avgImg = None
