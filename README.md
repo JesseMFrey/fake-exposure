@@ -2,9 +2,9 @@
 This project is used to fake long exposure photographs, in darkness, using a video. This allows greater flexibility in post processing.
 This includes changing the exposure start and stop times.
 
-# Instalation
+# Installation
 
-The python package can be installed using pip by the follwoing from the root of this repository :
+The python package can be installed using pip by the following from the root of this repository :
 ```
 pip install .
 ```
